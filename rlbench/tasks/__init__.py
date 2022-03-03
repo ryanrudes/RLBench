@@ -72,6 +72,7 @@ from rlbench.tasks.scoop_with_spatula import ScoopWithSpatula
 from rlbench.tasks.screw_nail import ScrewNail
 from rlbench.tasks.set_the_table import SetTheTable
 from rlbench.tasks.setup_checkers import SetupCheckers
+from rlbench.tasks.setup_chess import SetupChess
 from rlbench.tasks.slide_block_to_target import SlideBlockToTarget
 from rlbench.tasks.slide_cabinet_open import SlideCabinetOpen
 from rlbench.tasks.slide_cabinet_open_and_place_cups import \
