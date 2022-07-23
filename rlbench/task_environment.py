@@ -1,6 +1,6 @@
 import logging
 from typing import List, Callable
-
+from pyrep.const import ConfigurationPathAlgorithms as Algos
 import numpy as np
 from pyrep import PyRep
 from pyrep.const import ObjectType
@@ -112,7 +112,14 @@ class TaskEnvironment(object):
                   callable_each_step: Callable[[Observation], None] = None,
                   max_attempts: int = _MAX_DEMO_ATTEMPTS,
                   random_selection: bool = True,
-                  from_episode_number: int = 0
+                  from_episode_number: int = 0,
+                  linear=True,
+                  trials=100,
+                  max_configs=10,
+                  trials_per_goal=10,
+                  max_time_ms=10,
+                  distance_threshold=0.65,
+                  algorithm=Algos.RRTConnect
                   ) -> List[Demo]:
         """Negative means all demos"""
 
@@ -133,14 +140,31 @@ class TaskEnvironment(object):
             ctr_loop = self._robot.arm.joints[0].is_control_loop_enabled()
             self._robot.arm.set_control_loop_enabled(True)
             demos = self._get_live_demos(
-                amount, callable_each_step, max_attempts)
+                amount = amount,
+                callable_each_step = callable_each_step,
+                max_attempts = max_attempts,
+                linear = linear,
+                trials = trials,
+                max_configs = max_configs,
+                trials_per_goal = trials_per_goal,
+                max_time_ms=max_time_ms,
+                distance_threshold=distance_threshold,
+                algorithm = algorithm,
+            )
             self._robot.arm.set_control_loop_enabled(ctr_loop)
         return demos
 
     def _get_live_demos(self, amount: int,
                         callable_each_step: Callable[
                             [Observation], None] = None,
-                        max_attempts: int = _MAX_DEMO_ATTEMPTS) -> List[Demo]:
+                        max_attempts: int = _MAX_DEMO_ATTEMPTS,
+                        linear=True,
+                        trials=100,
+                        max_configs=10,
+                        trials_per_goal=10,
+                        max_time_ms=10,
+                        distance_threshold=0.65,
+                        algorithm=Algos.RRTConnect) -> List[Demo]:
         demos = []
         for i in range(amount):
             attempts = max_attempts
@@ -149,7 +173,14 @@ class TaskEnvironment(object):
                 self.reset()
                 try:
                     demo = self._scene.get_demo(
-                        callable_each_step=callable_each_step)
+                        callable_each_step=callable_each_step,
+                        linear = linear,
+                        trials = trials,
+                        max_configs = max_configs,
+                        trials_per_goal = trials_per_goal,
+                        max_time_ms = max_time_ms,
+                        distance_threshold = distance_threshold,
+                        algorithm = algorithm)
                     demo.random_seed = random_seed
                     demos.append(demo)
                     break

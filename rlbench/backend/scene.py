@@ -1,5 +1,5 @@
 from typing import List, Callable
-
+from pyrep.const import ConfigurationPathAlgorithms as Algos
 import numpy as np
 from pyrep import PyRep
 from pyrep.const import ObjectType
@@ -317,9 +317,16 @@ class Scene(object):
 
     def get_demo(self, record: bool = True,
                  callable_each_step: Callable[[Observation], None] = None,
-                 randomly_place: bool = True) -> Demo:
+                 randomly_place: bool = True,
+                 linear=True,
+                 trials=100,
+                 max_configs=10,
+                 trials_per_goal=10,
+                 max_time_ms=10,
+                 distance_threshold=0.65,
+                 algorithm=Algos.RRTConnect) -> Demo:
         """Returns a demo (list of observations)"""
-
+        
         if not self._has_init_task:
             self.init_task()
         if not self._has_init_episode:
@@ -349,7 +356,15 @@ class Scene(object):
                                     and self.robot.arm.check_arm_collision(s)]
                 [s.set_collidable(False) for s in colliding_shapes]
                 try:
-                    path = point.get_path()
+                    path = point.get_path(
+                        linear=linear,
+                        trials=trials,
+                        max_configs=max_configs,
+                        trials_per_goal=trials_per_goal,
+                        algorithm=algorithm,
+                        max_time_ms = max_time_ms,
+                        distance_threshold = distance_threshold,
+                    )
                     [s.set_collidable(True) for s in colliding_shapes]
                 except ConfigurationPathError as e:
                     [s.set_collidable(True) for s in colliding_shapes]
